@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả Chẩn đoán Viêm Phổi</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-grey: #f5f7fa;
+            --dark-grey: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-grey);
+            color: var(--dark-grey);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--dark-grey);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .result-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .prediction {
+            font-size: 24px;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .prediction.positive {
+            background-color: #fdecea;
+            color: #a93226;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .prediction.negative {
+            background-color: #eafaf1;
+            color: #1e8449;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .probability {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #7f8c8d;
+        }
+        
+        .image-container {
+            margin: 25px auto;
+            max-width: 450px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-weight: 500;
+            text-decoration: none;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .actions {
+            margin-top: 30px;
+        }
+        
+        .note {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        /* Chatbot Styles */
+        .chatbot-container {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+            text-align: left;
+        }
+        
+        .chatbot-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .chatbot-header h3 {
+            margin-left: 10px;
+        }
+        
+        .chatbot-icon {
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .chatbot-box {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        
+        .message.bot {
+            flex-direction: row;
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message.bot .message-bubble {
+            background-color: white;
+            border-bottom-left-radius: 5px;
+            margin-left: 10px;
+        }
+        
+        .message.user .message-bubble {
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+            margin-right: 10px;
+        }
+        
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .avatar.bot {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .avatar.user {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-input button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .chat-input button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .quick-reply {
+            background-color: #f2f6f9;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-reply:hover {
+            background-color: #e1e8ed;
+            border-color: #ccd6dd;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 10px;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            float: left;
+            margin: 0 1px;
+            background-color: #9E9EA1;
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        .typing-indicator span:nth-of-type(1) {
+            animation: 1s typing infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-of-type(2) {
+            animation: 1s typing infinite ease-in-out 0.2s;
+        }
+        
+        .typing-indicator span:nth-of-type(3) {
+            animation: 1s typing infinite ease-in-out 0.4s;
+        }
+        
+        @keyframes typing {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .prediction {
+                font-size: 20px;
+            }
+            
+            .message-bubble {
+                max-width: 80%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kết quả Chẩn đoán</h1>
+            <p class="subtitle">Phân tích ảnh X-quang ngực bằng công nghệ AI</p>
+        </header>
+        
+        <div class="result-card">
+            <h2>Kết luận chẩn đoán</h2>
+            {% if "Viêm phổi" in prediction %}
+                <div class="prediction positive">
+                    <i class="fas fa-lungs-virus"></i> {{ prediction }}
+                </div>
+                <p class="probability">Độ tin cậy: {{ confidence }}%</p>
+            {% else %}
+                <div class="prediction negative">
+                    <i class="fas fa-lungs"></i> {{ prediction }}
+                </div>
+                <p class="probability">Độ tin cậy: {{ confidence }}%</p>
+            {% endif %}
+        </div>
+        
+        <h3>Ảnh X-quang đã phân tích</h3>
+        <div class="image-container">
+            <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Ảnh X-quang phổi">
+        </div>
+        
+        <div class="note">
+            <strong><i class="fas fa-info-circle"></i> Lưu ý quan trọng:</strong>
+            <p>Kết quả này chỉ mang tính chất tham khảo và hỗ trợ chẩn đoán. Vui lòng tham khảo ý kiến bác sĩ chuyên khoa để có chẩn đoán và phương pháp điều trị chính xác.</p>
+        </div>
+        
+        <div class="actions">
+            <a href="{{ url_for('upload_file') }}" class="btn">
+                <i class="fas fa-upload"></i> Phân tích ảnh khác
+            </a>
+            <a href="#" class="btn btn-outline" onclick="window.print()">
+                <i class="fas fa-print"></i> In kết quả
+            </a>
+        </div>
+        
+        <!-- Chatbot Section -->
+        <div class="chatbot-container">
+            <div class="chatbot-header" onclick="toggleChatbot()">
+                <div class="chatbot-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>Tư vấn sức khỏe</h3>
+                <span style="margin-left: auto; font-size: 14px; color: #7f8c8d;">
+                    <i class="fas fa-angle-down" id="chatbot-toggle-icon"></i>
+                </span>
+            </div>
+            
+            <div class="chatbot-box" id="chatbot">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot">
+                        <div class="avatar bot">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-bubble">
+                            <p>Xin chào! Tôi là trợ lý sức khỏe ảo. Dựa trên kết quả chẩn đoán của bạn, tôi có thể đưa ra một số lời khuyên về chăm sóc sức khỏe phổi. Bạn quan tâm đến vấn đề gì?</p>
+                            <div class="quick-replies">
+                                <div class="quick-reply" onclick="sendQuickReply('Tôi nên làm gì tiếp theo?')">Tôi nên làm gì tiếp theo?</div>
+                                <div class="quick-reply" onclick="sendQuickReply('Làm thế nào để tăng cường sức khỏe phổi?')">Tăng cường sức khỏe phổi</div>
+                                <div class="quick-reply" onclick="sendQuickReply('Triệu chứng viêm phổi')">Triệu chứng viêm phổi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Nhập câu hỏi của bạn..." onkeyup="checkInput()">
+                    <button id="send-button" onclick="sendMessage()" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 - Hệ thống Chẩn đoán Viêm Phổi Hỗ trợ Bởi AI</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Store the prediction result for chatbot context
+        const prediction = "{{ prediction }}";
+        const isCOVID = prediction.toLowerCase().includes("viêm phổi");
+        
+        // Pre-defined responses based on diagnosis
+        const healthAdvice = {
+            positive: {
+                "tôi nên làm gì tiếp theo?": 
+                    "Dựa trên kết quả dự đoán viêm phổi, bạn nên:<br>1. Liên hệ với bác sĩ ngay lập tức để được khám và điều trị<br>2. Theo dõi các triệu chứng như sốt, ho, khó thở<br>3. Nghỉ ngơi và uống nhiều nước<br>4. Không tự ý sử dụng kháng sinh mà không có chỉ định của bác sĩ",
+                
+                "làm thế nào để tăng cường sức khỏe phổi?": 
+                    "Để hỗ trợ điều trị và tăng cường sức khỏe phổi khi bị viêm phổi:<br>1. Tuân thủ phác đồ điều trị của bác sĩ<br>2. Thực hiện các bài tập thở đơn giản khi được cho phép<br>3. Tránh khói thuốc và ô nhiễm không khí<br>4. Đảm bảo chế độ dinh dưỡng giàu protein, vitamin C và E<br>5. Nghỉ ngơi đầy đủ để cơ thể phục hồi",
+                
+                "triệu chứng viêm phổi": 
+                    "Các triệu chứng phổ biến của viêm phổi bao gồm:<br>1. Sốt cao, ớn lạnh<br>2. Ho có đờm, đôi khi có máu<br>3. Khó thở, thở nhanh<br>4. Đau ngực khi ho hoặc thở sâu<br>5. Mệt mỏi, cảm giác yếu<br>6. Buồn nôn, tiêu chảy hoặc đau bụng<br>Nếu bạn có các triệu chứng này, cần được điều trị y tế kịp thời."
+            },
+            negative: {
+                "tôi nên làm gì tiếp theo?": 
+                    "Dựa trên kết quả không phát hiện viêm phổi, bạn nên:<br>1. Tiếp tục duy trì lối sống lành mạnh<br>2. Thực hiện kiểm tra sức khỏe định kỳ<br>3. Nếu vẫn có các triệu chứng hô hấp, hãy tham khảo ý kiến bác sĩ để kiểm tra thêm",
+                
+                "làm thế nào để tăng cường sức khỏe phổi?": 
+                    "Để duy trì và tăng cường sức khỏe phổi:<br>1. Tập thể dục thường xuyên<br>2. Không hút thuốc và tránh khói thuốc<br>3. Thực hiện các bài tập hô hấp<br>4. Uống đủ nước mỗi ngày<br>5. Duy trì chế độ ăn giàu chất chống oxy hóa<br>6. Tránh ô nhiễm không khí khi có thể",
+                
+                "triệu chứng viêm phổi": 
+                    "Mặc dù kết quả không phát hiện viêm phổi, bạn nên biết các dấu hiệu cần chú ý:<br>1. Sốt cao kéo dài<br>2. Ho kéo dài trên 3 tuần<br>3. Khó thở khi gắng sức<br>4. Đau ngực khi ho hoặc hít sâu<br>5. Ho ra máu hoặc đờm có màu lạ<br>Nếu xuất hiện bất kỳ triệu chứng nào, hãy đi khám bác sĩ."
+            }
+        };
+        
+        // Toggle chatbot visibility
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot');
+            const icon = document.getElementById('chatbot-toggle-icon');
+            
+            if (chatbot.style.display === 'none') {
+                chatbot.style.display = 'flex';
+                icon.className = 'fas fa-angle-up';
+            } else {
+                chatbot.style.display = 'none';
+                icon.className = 'fas fa-angle-down';
+            }
+        }
+        
+        // Enable/disable send button based on input
+        function checkInput() {
+            const input = document.getElementById('user-input');
+            const button = document.getElementById('send-button');
+            
+            button.disabled = input.value.trim() === '';
+        }
+        
+        // Send message when Enter key is pressed
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('send-button').disabled) {
+                sendMessage();
+            }
+        });
+        
+        // Send user message
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const messagesContainer = document.getElementById('chat-messages');
+            const userMessage = input.value.trim();
+            
+            if (userMessage === '') return;
+            
+            // Add user message
+            messagesContainer.innerHTML += `
+                <div class="message user">
+                    <div class="avatar user">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-bubble">
+                        ${userMessage}
+                    </div>
+                </div>
+            `;
+            
+            // Clear input
+            input.value = '';
+            document.getElementById('send-button').disabled = true;
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Show typing indicator
+            messagesContainer.innerHTML += `
+                <div class="message bot" id="typing-indicator">
+                    <div class="avatar bot">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Generate response after delay
+            setTimeout(() => {
+                document.getElementById('typing-indicator').remove();
+                respondToMessage(userMessage);
+            }, 1500);
+        }
+        
+        // Send quick reply
+        function sendQuickReply(message) {
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            // Add user message
+            messagesContainer.innerHTML += `
+                <div class="message user">
+                    <div class="avatar user">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-bubble">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Show typing indicator
+            messagesContainer.innerHTML += `
+                <div class="message bot" id="typing-indicator">
+                    <div class="avatar bot">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Generate response after delay
+            setTimeout(() => {
+                document.getElementById('typing-indicator').remove();
+                respondToMessage(message);
+            }, 1500);
+        }
+        
+        // Generate bot response
+        function respondToMessage(message) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const lowerMessage = message.toLowerCase();
+            let response = '';
+            
+            // Check if response exists in predefined responses
+            if (isCOVID) {
+                // For positive prediction
+                for (const key in healthAdvice.positive) {
+                    if (lowerMessage.includes(key)) {
+                        response = healthAdvice.positive[key];
+                        break;
+                    }
+                }
+            } else {
+                // For negative prediction
+                for (const key in healthAdvice.negative) {
+                    if (lowerMessage.includes(key)) {
+                        response = healthAdvice.negative[key];
+                        break;
+                    }
+                }
+            }
+            
+            // If no predefined response, use fallback
+            if (response === '') {
+                response = generateFallbackResponse(lowerMessage);
+            }
+            
+            // Add bot response
+            messagesContainer.innerHTML += `
+                <div class="message bot">
+                    <div class="avatar bot">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        ${response}
+                        ${generateQuickReplies()}
+                    </div>
+                </div>
+            `;
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Generate fallback response
+        function generateFallbackResponse(message) {
+            if (message.includes('cảm ơn') || message.includes('cam on')) {
+                return "Không có gì! Tôi rất vui khi có thể hỗ trợ bạn. Bạn có câu hỏi nào khác không?";
+            }
+            
+            if (message.includes('bác sĩ') || message.includes('khám')) {
+                return "Bạn nên đặt lịch khám với bác sĩ chuyên khoa hô hấp để được tư vấn và điều trị chính xác. Bạn có thể tìm kiếm các bệnh viện hoặc phòng khám gần nhất thông qua ứng dụng đặt lịch khám bệnh.";
+            }
+            
+            if (message.includes('thuốc') || message.includes('điều trị')) {
+                return "Tôi không thể đưa ra lời khuyên cụ thể về thuốc men. Chỉ có bác sĩ mới có thể kê đơn thuốc phù hợp sau khi khám trực tiếp. Vui lòng không tự ý dùng thuốc, đặc biệt là kháng sinh, khi chưa có chỉ định.";
+            }
+            
+            if (isCOVID) {
+                return "Với kết quả dự đoán có thể có viêm phổi, điều quan trọng là bạn nên đi khám bác sĩ ngay để được chẩn đoán chính xác và điều trị kịp thời. Bạn còn thắc mắc gì về tình trạng hoặc cách chăm sóc sức khỏe không?";
+            } else {
+                return "Mặc dù kết quả cho thấy không phát hiện viêm phổi, việc duy trì sức khỏe phổi vẫn rất quan trọng. Bạn còn câu hỏi nào về cách phòng ngừa bệnh hô hấp không?";
+            }
+        }
+        
+        // Generate quick replies
+        function generateQuickReplies() {
+            if (isCOVID) {
+                return `
+                    <div class="quick-replies">
+                        <div class="quick-reply" onclick="sendQuickReply('Khi nào cần đến bệnh viện?')">Khi nào cần đến bệnh viện?</div>
+                        <div class="quick-reply" onclick="sendQuickReply('Phòng ngừa biến chứng')">Phòng ngừa biến chứng</div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="quick-replies">
+                        <div class="quick-reply" onclick="sendQuickReply('Thực phẩm tốt cho phổi')">Thực phẩm tốt cho phổi</div>
+                        <div class="quick-reply" onclick="sendQuickReply('Bài tập cho phổi khỏe')">Bài tập cho phổi khỏe</div>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

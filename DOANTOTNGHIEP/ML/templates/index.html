@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chẩn đoán Viêm Phổi</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-grey: #f5f7fa;
+            --dark-grey: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-grey);
+            color: var(--dark-grey);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--dark-grey);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .upload-container {
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-container:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .upload-container i {
+            font-size: 50px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .alert-danger {
+            background-color: #fdecea;
+            border-left: 4px solid var(--danger-color);
+            color: #a93226;
+        }
+        
+        .alert-success {
+            background-color: #eafaf1;
+            border-left: 4px solid var(--success-color);
+            color: #1e8449;
+        }
+        
+        footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chẩn đoán Viêm Phổi</h1>
+            <p class="subtitle">Tải lên ảnh X-quang ngực để phân tích và chẩn đoán</p>
+        </header>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <form method="POST" enctype="multipart/form-data" id="upload-form">
+            <div class="upload-container" id="upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Kéo thả ảnh hoặc nhấp để chọn</h3>
+                <p>Hỗ trợ định dạng JPG, PNG, JPEG</p>
+                <input type="file" name="file" id="file-input" class="file-input" accept="image/*" required>
+                <p class="file-name" id="file-name"></p>
+            </div>
+            
+            <button type="submit" class="btn">
+                <i class="fas fa-stethoscope"></i> Phân tích và Chẩn đoán
+            </button>
+        </form>
+        
+        <footer>
+            <p>© 2025 - Hệ thống Chẩn đoán Viêm Phổi Hỗ trợ Bởi AI</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.getElementById('upload-area').addEventListener('click', function() {
+            document.getElementById('file-input').click();
+        });
+        
+        document.getElementById('file-input').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : '';
+            document.getElementById('file-name').textContent = fileName;
+            
+            if (fileName) {
+                document.getElementById('upload-area').style.borderColor = '#27ae60';
+            }
+        });
+        
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('upload-area');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.backgroundColor = '#ebf5fb';
+        }
+        
+        function unhighlight() {
+            uploadArea.style.borderColor = '#bdc3c7';
+            uploadArea.style.backgroundColor = 'transparent';
+        }
+        
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            document.getElementById('file-input').files = files;
+            
+            if (files[0]) {
+                document.getElementById('file-name').textContent = files[0].name;
+                uploadArea.style.borderColor = '#27ae60';
+            }
+        }
+    </script>
+</body>
+</html>
